@@ -9,7 +9,7 @@ class OverlapScorer:
 
   def __format_line(self, query_num, doc_num, score):
     values = map(lambda x: str(x), [query_num, doc_num, score])
-    return string.join(values) + ' 0' + os.linesep
+    return string.join(values, ' 0 ') + ' 0' + os.linesep
 
   def dump(self):
     with open(self.filename, 'w') as overlaps:

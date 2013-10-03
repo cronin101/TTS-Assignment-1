@@ -10,11 +10,10 @@ class StringTokenizer:
       tokens: ['foo', 'bar', 'baz', 'the', 'cow', 'jumped']
   '''
   def __init__(self, input_string):
-    for symbol in string.punctuation:
-      input_string = input_string.replace(symbol, '')
-    split_string = re.compile('\s').split(input_string.lower())
-    self.sample_number = int(split_string[0])
-    self.tokens = split_string[1:]
+    nonword_regex, word_regex = re.compile('\W'), re.compile('\w')
+    split_string = nonword_regex.split(input_string.lower())
+    no_punctuation = filter(lambda w: word_regex.match(w), split_string)
+    self.sample_number, self.tokens = int(no_punctuation[0]), no_punctuation[1:]
 
 class FileTokenizer:
   '''Takes an input filename where the file is a list of numbered lines
