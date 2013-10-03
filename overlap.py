@@ -19,4 +19,5 @@ class OverlapScorer:
           line = self.__format_line(query.sample_number, document.sample_number, score)
           overlaps.write(line)
 
-OverlapScorer('./overlap.top', './qrys.txt', './docs.txt').dump()
+if __name__ == "__main__":
+  OverlapScorer('./overlap.top', './qrys.txt', './docs.txt').dump()
