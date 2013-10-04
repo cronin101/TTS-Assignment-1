@@ -23,6 +23,6 @@ class FileTokenizer:
       contents = input_file.read().strip()
     self.lines = re.compile('\n').split(contents)
 
-  def tokenized_lines(self):
+  def all(self):
     for line in self.lines:
       yield StringTokenizer(line)

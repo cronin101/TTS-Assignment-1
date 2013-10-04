@@ -13,8 +13,8 @@ class OverlapScorer:
 
   def dump(self):
     with open(self.filename, 'w') as overlaps:
-      for query in self.queries.tokenized_lines():
-        for document in self.documents.tokenized_lines():
+      for query in self.queries.all():
+        for document in self.documents.all():
           score = len(set(query.tokens).intersection(set(document.tokens)))
           line = self.__format_line(query.sample_number, document.sample_number, score)
           overlaps.write(line)
