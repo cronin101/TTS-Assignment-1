@@ -38,7 +38,7 @@ class TFIDFScorer:
     return tf / (tf + self.kd_o_avd[document_id])
 
   def idf(self, document_id):
-    return log((self.C / self.get_df(document_id)),10)
+    return log((self.C / self.get_df(document_id)), 10)
 
   def query_score(self, query, document_id):
     q_word_ids = map(lambda w: self.word_id[w], query.tokens)
