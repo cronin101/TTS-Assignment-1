@@ -22,5 +22,18 @@ class TestStringTokenizer(unittest.TestCase):
     self.assertEqual(with_punc.sample_number, 9)
     self.assertEqual(with_punc.tokens, tokens)
 
+  def test_split_and_merge(self):
+    '''Words containing punctuation should be split into tokens but also added in full'''
+    split_and_merge = StringTokenizer(
+      "16 Message-passing is great, ***** don't forget to keep data local though!",
+      split_and_merge = True
+    )
+    tokens = [
+      'message', 'passing', 'is', 'great', 'don', 't', 'forget', 'to',
+      'keep', 'data', 'local', 'though', 'message-passing', "don't"
+    ]
+    self.assertEqual(split_and_merge.sample_number, 16)
+    self.assertEqual(split_and_merge.tokens, tokens)
+
 if __name__ == '__main__':
       unittest.main()

@@ -114,25 +114,26 @@ class TestTFIDFScorer(unittest.TestCase):
     documents = map(tokenize, document_lines)
     scorer = TFIDFScorer('./output', [StringTokenizer('1 cats')], documents, 2.0)
     scorer.crunch_numbers()
+    self.assertEqual(scorer.C, 4)
 
     bees_id = scorer.word_id['bees']
     self.assertEqual(scorer.get_df(bees_id), 3)
-    inverse_bees_frequency = scorer.C / 1 + 3
+    inverse_bees_frequency = scorer.C / (1.0 + 3)
     self.assertEqual(scorer.idf(bees_id), log(inverse_bees_frequency, 2))
 
     romeo_id = scorer.word_id['romeo']
     self.assertEqual(scorer.get_df(romeo_id), 2)
-    inverse_romeo_frequency = scorer.C / 1 + 2
+    inverse_romeo_frequency = scorer.C / (1.0 + 2)
     self.assertEqual(scorer.idf(romeo_id), log(inverse_romeo_frequency, 2))
 
     why_id = scorer.word_id['why']
     self.assertEqual(scorer.get_df(why_id), 1)
-    inverse_why_frequency = scorer.C / 1 + 1
+    inverse_why_frequency = scorer.C / (1.0 + 1)
     self.assertEqual(scorer.idf(why_id), log(inverse_why_frequency, 2))
 
     cats_id = scorer.word_id['cats']
     self.assertEqual(scorer.get_df(cats_id), 0)
-    inverse_cats_frequency = scorer.C / 1 + 0
+    inverse_cats_frequency = scorer.C / (1.0 + 0)
     self.assertEqual(scorer.idf(cats_id), log(inverse_cats_frequency, 2))
 
   def test_average_document_length(self):
