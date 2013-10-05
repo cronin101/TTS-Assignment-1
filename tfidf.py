@@ -8,10 +8,13 @@ class TFIDFScorer:
     self.filename, self.k = filename, k
     self.queries, self.documents  = list(queries), list(documents)
     corpus = chain(self.queries, self.documents)
-    self.unique_words = set(chain.from_iterable(map(lambda l: l.tokens, corpus)))
+    self.unique_words = self.flatten_and_unique(corpus)
     self.word_id = dict(map(lambda t: reversed(t), enumerate(self.unique_words, 1)))
     self.document_by_id = dict(map(lambda d: (d.sample_number, d), self.documents))
     self.C = len(self.documents)
+
+  def flatten_and_unique(self, list_of_lists):
+    return set(chain.from_iterable(map(lambda l: l.tokens, list_of_lists)))
 
   def crunch_numbers(self):
     self.compute_k_d_over_avg_d()
@@ -52,7 +55,7 @@ class TFIDFScorer:
     return tf / (tf + self.kd_o_avd[document_id])
 
   def idf(self, word_id):
-    return log(self.C / 1.0 + self.get_df(word_id), 10)
+    return log(self.C / 1.0 + self.get_df(word_id), 2)
 
   def query_score(self, query, document_id):
     query_words = query.tokens
