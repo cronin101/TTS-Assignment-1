@@ -17,8 +17,8 @@ class TFIDFScorer:
     return set(chain.from_iterable(map(lambda l: l.tokens, list_of_lists)))
 
   def crunch_numbers(self):
-    self.compute_k_d_over_avg_d()
     self.compute_term_frequency()
+    self.compute_k_d_over_avg_d()
     return self
 
   def __format_line(self, query_num, doc_num, score):
@@ -59,7 +59,7 @@ class TFIDFScorer:
     return tf / (tf + self.kd_o_avd[document_id])
 
   def idf(self, word_id):
-    return log(self.C / 1.0 + self.get_df(word_id), 2)
+    return log(self.C / (1.0 + self.get_df(word_id)), 2)
 
   def q_tf(self, word_id, query_words):
     return map(lambda w: self.word_id[w], query_words).count(word_id)
