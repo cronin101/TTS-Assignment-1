@@ -2,8 +2,9 @@ from tokenize import *
 import os
 from math import log
 from itertools import chain
+import nltk
 
-class TFIDFScorer:
+class BestScorer:
   def __init__(self, filename, queries_file, documents_file, k):
     self.filename, self.k = filename, k
     self.queries, self.documents  = FileTokenizer(queries_file), FileTokenizer(documents_file)
@@ -56,7 +57,8 @@ class TFIDFScorer:
 
   def query_score(self, query, document_id):
     query_words = query.tokens
-    q_word_ids = map(lambda w: self.word_id[w], query_words)
+    filtered_query = [w for w in query_words if not w in nltk.corpus.stopwords.words('english')]
+    q_word_ids = map(lambda w: self.word_id[w], filtered_query)
     j = document_id
     return sum(map(lambda i: q_word_ids.count(i) * self.tf(i,j) * self.idf(i), q_word_ids))
 
@@ -74,4 +76,4 @@ class TFIDFScorer:
         self.document_frequency[word_id] = existing_df + 1
 
 if __name__ == "__main__":
-  TFIDFScorer('tfidf.top', './qrys.txt', './docs.txt', 2.0).crunch_numbers().dump()
+  BestScorer('best.top', './qrys.txt', './docs.txt', 2.0).crunch_numbers().dump()
