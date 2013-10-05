@@ -1,5 +1,6 @@
 from tokenize import StringTokenizer
 from tfidf import TFIDFScorer
+from math import log
 import unittest
 
 class TestTFIDFScorer(unittest.TestCase):
@@ -73,7 +74,9 @@ class TestTFIDFScorer(unittest.TestCase):
     self.assertEqual(scorer.get_tf(dogs_id, 3), 0)
 
   def test_document_frequency(self):
-    '''Document_ frequency(i) is the number of documents that word i appears in'''
+    '''Document_ frequency(i) is the number of documents that word i appears in.
+    Inverse_document_frequency(i) is log_2 of:
+      The number of documents (C) divided by document frequency of word i (plus 1)'''
     def tokenize(line): return StringTokenizer(line)
 
     document_lines = [
@@ -88,15 +91,23 @@ class TestTFIDFScorer(unittest.TestCase):
 
     bees_id = scorer.word_id['bees']
     self.assertEqual(scorer.get_df(bees_id), 3)
+    inverse_bees_frequency = scorer.C / 1 + 3
+    self.assertEqual(scorer.idf(bees_id), log(inverse_bees_frequency, 2))
 
     romeo_id = scorer.word_id['romeo']
     self.assertEqual(scorer.get_df(romeo_id), 2)
+    inverse_romeo_frequency = scorer.C / 1 + 2
+    self.assertEqual(scorer.idf(romeo_id), log(inverse_romeo_frequency, 2))
 
     why_id = scorer.word_id['why']
     self.assertEqual(scorer.get_df(why_id), 1)
+    inverse_why_frequency = scorer.C / 1 + 1
+    self.assertEqual(scorer.idf(why_id), log(inverse_why_frequency, 2))
 
     cats_id = scorer.word_id['cats']
     self.assertEqual(scorer.get_df(cats_id), 0)
+    inverse_cats_frequency = scorer.C / 1 + 0
+    self.assertEqual(scorer.idf(cats_id), log(inverse_cats_frequency, 2))
 
 if __name__ == '__main__':
       unittest.main()
