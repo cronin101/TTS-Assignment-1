@@ -136,6 +136,7 @@ class TestTFIDFScorer(unittest.TestCase):
     self.assertEqual(scorer.idf(cats_id), log(inverse_cats_frequency, 2))
 
   def test_average_document_length(self):
+    '''Should return the average length of all documents in collection C (in number of tokens)'''
     def tokenize(line): return StringTokenizer(line)
 
     document_lines = [
