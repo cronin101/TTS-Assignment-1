@@ -5,5 +5,5 @@ Tfidf: Average precision (non-interpolated) for all rel docs(averaged over queri
                   0.1583 
 
 Best: Average precision (non-interpolated) for all rel docs(averaged over queries)
-                  0.2232 
+                  0.2271 
 

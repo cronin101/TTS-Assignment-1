@@ -3,13 +3,16 @@ import os
 from math import log
 from itertools import chain
 import nltk
+from nltk.stem.lancaster import LancasterStemmer
 
 class BestScorer:
   def __init__(self, filename, queries_file, documents_file, k):
     self.filename, self.k = filename, k
     self.queries, self.documents  = FileTokenizer(queries_file), FileTokenizer(documents_file)
     corpus = chain(self.queries.all(), self.documents.all())
-    self.unique_words = set(chain.from_iterable(map(lambda l: l.tokens, corpus)))
+    ls = LancasterStemmer()
+    stemmed_words = map(lambda w: ls.stem(w), set(chain.from_iterable(map(lambda l: l.tokens, corpus))))
+    self.unique_words = set(stemmed_words)
     self.word_id = dict(map(lambda t: reversed(t), enumerate(self.unique_words, 1)))
     self.document_by_id = dict(map(lambda d: (d.sample_number, d), self.documents.all()))
     self.C = len(list(self.documents.all()))
@@ -58,7 +61,9 @@ class BestScorer:
   def query_score(self, query, document_id):
     query_words = query.tokens
     filtered_query = [w for w in query_words if not w in nltk.corpus.stopwords.words('english')]
-    q_word_ids = map(lambda w: self.word_id[w], filtered_query)
+    ls = LancasterStemmer()
+    stemmed_query = map(lambda w: ls.stem(w), filtered_query)
+    q_word_ids = map(lambda w: self.word_id[w], stemmed_query)
     j = document_id
     return sum(map(lambda i: q_word_ids.count(i) * self.tf(i,j) * self.idf(i), q_word_ids))
 
@@ -66,10 +71,12 @@ class BestScorer:
     '''For each document, record the number of times that each word appears'''
     self.term_frequency = {}
     self.document_frequency = {}
+    ls = LancasterStemmer()
     for document in self.documents.all():
       doc_id = document.sample_number
       for word in document.tokens:
-        word_id = self.word_id[word]
+        stemmed_word = ls.stem(word)
+        word_id = self.word_id[stemmed_word]
         existing_tf = self.get_tf(word_id, doc_id)
         self.term_frequency[(word_id, doc_id)] = existing_tf + 1
         existing_df = self.get_df(word_id)
