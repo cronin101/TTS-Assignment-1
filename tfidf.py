@@ -57,11 +57,19 @@ class TFIDFScorer:
   def idf(self, word_id):
     return log(self.C / 1.0 + self.get_df(word_id), 2)
 
+  def q_tf(self, word_id, query_words):
+    return map(lambda w: self.word_id[w], query_words).count(word_id)
+
   def query_score(self, query, document_id):
     query_words = query.tokens
-    q_word_ids = map(lambda w: self.word_id[w], query_words)
-    j = document_id
-    return sum(map(lambda i: q_word_ids.count(i) * self.tf(i,j) * self.idf(i), q_word_ids))
+    q_word_ids = set(map(lambda w: self.word_id[w], query_words))
+
+    def qtf_tf_idf(word_id):
+      i = word_id
+      j = document_id
+      return self.q_tf(i, query_words) * self.tf(i, j) * self.idf(i)
+
+    return sum(map(qtf_tf_idf, q_word_ids))
 
   def compute_term_frequency(self):
     '''For each document, record the number of times that each word appears'''
