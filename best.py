@@ -3,6 +3,8 @@ import os
 from math import log
 from itertools import chain
 import nltk
+import sys
+import gc
 from nltk.stem.lancaster import LancasterStemmer
 
 class BestScorer:
@@ -16,6 +18,7 @@ class BestScorer:
     self.word_id = dict(map(lambda t: reversed(t), enumerate(self.unique_words, 1)))
     self.document_by_id = dict(map(lambda d: (d.sample_number, d), self.documents.all()))
     self.C = len(list(self.documents.all()))
+    self.stopwords = nltk.corpus.stopwords.words('english')
 
   def crunch_numbers(self):
     self.compute_k_d_over_avg_d()
@@ -60,7 +63,7 @@ class BestScorer:
 
   def query_score(self, query, document_id):
     query_words = query.tokens
-    filtered_query = [w for w in query_words if not w in nltk.corpus.stopwords.words('english')]
+    filtered_query = [w for w in query_words if not w in self.stopwords]
     ls = LancasterStemmer()
     stemmed_query = map(lambda w: ls.stem(w), filtered_query)
     q_word_ids = map(lambda w: self.word_id[w], stemmed_query)
@@ -83,4 +86,4 @@ class BestScorer:
         self.document_frequency[word_id] = existing_df + 1
 
 if __name__ == "__main__":
-  BestScorer('best.top', './qrys.txt', './docs.txt', 2.0).crunch_numbers().dump()
+  BestScorer('best.top', './qrys.txt', './docs.txt', float(sys.argv[1])).crunch_numbers().dump()
