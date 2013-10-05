@@ -47,7 +47,7 @@ class TFIDFScorer:
     return self.term_frequency.get((word_id, document_id), 0)
 
   def get_df(self, word_id):
-    '''Occurrences of word i in any document'''
+    '''Number of documents that word i appears in'''
     return self.document_frequency.get(word_id, 0)
 
   def tf(self, word_id, document_id):
