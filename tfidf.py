@@ -4,14 +4,14 @@ from math import log
 from itertools import chain
 
 class TFIDFScorer:
-  def __init__(self, filename, queries_file, documents_file, k):
+  def __init__(self, filename, queries, documents, k):
     self.filename, self.k = filename, k
-    self.queries, self.documents  = FileTokenizer(queries_file), FileTokenizer(documents_file)
-    corpus = chain(self.queries.all(), self.documents.all())
+    self.queries, self.documents  = list(queries), list(documents)
+    corpus = chain(self.queries, self.documents)
     self.unique_words = set(chain.from_iterable(map(lambda l: l.tokens, corpus)))
     self.word_id = dict(map(lambda t: reversed(t), enumerate(self.unique_words, 1)))
-    self.document_by_id = dict(map(lambda d: (d.sample_number, d), self.documents.all()))
-    self.C = len(list(self.documents.all()))
+    self.document_by_id = dict(map(lambda d: (d.sample_number, d), self.documents))
+    self.C = len(self.documents)
 
   def crunch_numbers(self):
     self.compute_k_d_over_avg_d()
@@ -24,7 +24,7 @@ class TFIDFScorer:
 
   def dump(self):
     with open(self.filename, 'w') as scores:
-      for query in self.queries.all():
+      for query in self.queries:
         for doc_id in range(1, self.C):
           score = self.query_score(query, doc_id)
           if score > 0:
@@ -34,9 +34,9 @@ class TFIDFScorer:
   def compute_k_d_over_avg_d(self):
     '''Document length normalisation factor'''
     self.kd_o_avd = {}
-    document_lengths = map(lambda d: len(d.tokens), self.documents.all())
+    document_lengths = map(lambda d: len(d.tokens), self.documents)
     average_doc_len = sum(document_lengths) / float(len(document_lengths))
-    for document in self.documents.all():
+    for document in self.documents:
       self.kd_o_avd[document.sample_number] = (self.k * len(document.tokens)) / average_doc_len
 
   def get_tf(self, word_id, document_id):
@@ -64,7 +64,7 @@ class TFIDFScorer:
     '''For each document, record the number of times that each word appears'''
     self.term_frequency = {}
     self.document_frequency = {}
-    for document in self.documents.all():
+    for document in self.documents:
       doc_id = document.sample_number
       for word in document.tokens:
         word_id = self.word_id[word]
@@ -74,4 +74,9 @@ class TFIDFScorer:
         self.document_frequency[word_id] = existing_df + 1
 
 if __name__ == "__main__":
-  TFIDFScorer('tfidf.top', './qrys.txt', './docs.txt', 2.0).crunch_numbers().dump()
+  TFIDFScorer(
+    'tfidf.top',
+    FileTokenizer('./qrys.txt').all(),
+    FileTokenizer('./docs.txt').all(),
+    2.0
+  ).crunch_numbers().dump()
