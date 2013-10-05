@@ -156,5 +156,29 @@ class TestTFIDFScorer(unittest.TestCase):
     length_three_scorer = TFIDFScorer('./output', [], documents, 2.0)
     self.assertEqual(length_three_scorer.average_doc_len(), 3.0)
 
+  def test_document_length_normalisation_factor(self):
+    '''Should return the constant k, multiplied by the length of the document,
+    over the average document length'''
+    def tokenize(line): return StringTokenizer(line)
+
+    document_lines = [
+      '1 bees bees bees bees',
+      '2 romeo romeo romeo',
+      '3 bees are'
+    ]
+    documents = map(tokenize, document_lines)
+    average_doc_len = 3.0
+    for k in [1.0, 2.0, 3.0, 4.0]:
+      scorer = TFIDFScorer('./output', [], documents, k)
+      scorer.crunch_numbers()
+      expected_1 = (k * 4.0) / average_doc_len
+      self.assertEqual(scorer.kd_o_avd[1], expected_1)
+      expected_2 = (k * 3.0) / average_doc_len
+      self.assertEqual(scorer.kd_o_avd[2], expected_2)
+      expected_3 = (k * 2.0) / average_doc_len
+      self.assertEqual(scorer.kd_o_avd[3], expected_3)
+
+
+
 if __name__ == '__main__':
       unittest.main()
