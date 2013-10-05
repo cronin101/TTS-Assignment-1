@@ -55,16 +55,23 @@ class TFIDFScorer:
     return self.document_frequency.get(word_id, 0)
 
   def tf(self, word_id, document_id):
+    '''Normalised term frequency component:
+    Repetitions less important, except in long documents'''
     tf = self.get_tf(word_id, document_id)
     return tf / (tf + self.kd_o_avd[document_id])
 
   def idf(self, word_id):
+    '''Inverse document frequency:
+    Rare words are considered more important for ranking'''
     return log(self.C / (1.0 + self.get_df(word_id)), 2)
 
   def q_tf(self, word_id, query_words):
+    '''Query term frequency:
+    Words that appear more often in the query are ranked higher'''
     return map(lambda w: self.word_id[w], query_words).count(word_id)
 
   def query_score(self, query, document_id):
+    '''Sum over all query words i of qtf . tf . idf'''
     query_words = query.tokens
     q_word_ids = set(map(lambda w: self.word_id[w], query_words))
 
