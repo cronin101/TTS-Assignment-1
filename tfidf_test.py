@@ -135,5 +135,25 @@ class TestTFIDFScorer(unittest.TestCase):
     inverse_cats_frequency = scorer.C / 1 + 0
     self.assertEqual(scorer.idf(cats_id), log(inverse_cats_frequency, 2))
 
+  def test_average_document_length(self):
+    def tokenize(line): return StringTokenizer(line)
+
+    document_lines = [
+      '1 bees bees bees bees',
+      '2 romeo romeo romeo romeo',
+      '4 bees are your friends'
+    ]
+    documents = map(tokenize, document_lines)
+    length_four_scorer = TFIDFScorer('./output', [], documents, 2.0)
+    self.assertEqual(length_four_scorer.average_doc_len(), 4.0)
+
+    document_lines = [
+      '1 bees bees bees bees',
+      '2 romeo romeo',
+    ]
+    documents = map(tokenize, document_lines)
+    length_three_scorer = TFIDFScorer('./output', [], documents, 2.0)
+    self.assertEqual(length_three_scorer.average_doc_len(), 3.0)
+
 if __name__ == '__main__':
       unittest.main()

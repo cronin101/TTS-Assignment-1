@@ -34,11 +34,15 @@ class TFIDFScorer:
             line = self.__format_line(query.sample_number, doc_id, score)
             scores.write(line)
 
+  def average_doc_len(self):
+    '''Average length of documents in collection C'''
+    document_lengths = map(lambda d: len(d.tokens), self.documents)
+    return sum(document_lengths) / float(len(document_lengths))
+
   def compute_k_d_over_avg_d(self):
     '''Document length normalisation factor'''
     self.kd_o_avd = {}
-    document_lengths = map(lambda d: len(d.tokens), self.documents)
-    average_doc_len = sum(document_lengths) / float(len(document_lengths))
+    average_doc_len = self.average_doc_len()
     for document in self.documents:
       self.kd_o_avd[document.sample_number] = (self.k * len(document.tokens)) / average_doc_len
 
