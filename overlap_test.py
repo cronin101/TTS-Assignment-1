@@ -2,7 +2,6 @@ from tokenize import StringTokenizer
 from overlap import OverlapScorer
 import unittest
 from flexmock import flexmock
-import sys
 
 class TestOverlapScorer(unittest.TestCase):
   def test_no_overlaps(self):
