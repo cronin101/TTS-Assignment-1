@@ -73,8 +73,9 @@ class TFIDFScorer:
         word_id = self.word_id[word]
         existing_tf = self.get_tf(word_id, doc_id)
         self.term_frequency[(word_id, doc_id)] = existing_tf + 1
-        existing_df = self.get_df(word_id)
-        self.document_frequency[word_id] = existing_df + 1
+        if existing_tf == 0:
+          existing_df = self.get_df(word_id)
+          self.document_frequency[word_id] = existing_df + 1
 
 if __name__ == "__main__":
   TFIDFScorer(
