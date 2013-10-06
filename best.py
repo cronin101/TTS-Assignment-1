@@ -8,8 +8,7 @@ class BestScorer:
   def __init__(self, filename, queries, documents, k=2.0, prf_num_top=4, prf_num_words=60):
     self.filename, self.k, self.prf_num_top, self.prf_num_words = filename, k, prf_num_top, prf_num_words
     self.queries, self.documents  = list(queries), list(documents)
-    corpus = chain(self.queries, self.documents)
-    self.unique_words = set(self.flatten_and_unique(corpus))
+    self.unique_words = set(self.flatten_and_unique(chain(self.queries, self.documents)))
     self.word_id = dict((reversed(t) for t in enumerate(self.unique_words, 1)))
     self.document_by_id = dict(((d.sample_number, d) for d in self.documents))
     self.C = len(self.documents)
@@ -40,9 +39,8 @@ class BestScorer:
     '''Document length normalisation factor'''
     self.kd_o_avd = {}
     average_doc_len = self.average_doc_len()
-    kd_o_avd = self.kd_o_avd
     for document in self.documents:
-      kd_o_avd[document.sample_number] = (self.k * len(document.tokens)) / average_doc_len
+      self.kd_o_avd[document.sample_number] = (self.k * len(document.tokens)) / average_doc_len
     return self
 
   def get_tf(self, word_id, document_id):
@@ -70,9 +68,7 @@ class BestScorer:
     return list(self.word_id[w] for w in query_words).count(word_id)
 
   def compute_query_scores(self):
-    base_query_score = {}
-    self.query_score = {}
-    get_query_score = self.get_query_score
+    base_query_score, self.query_score, get_query_score = {}, {}, self.get_query_score
     for query in self.queries:
       for doc_id in xrange(1, self.C):
         base_query_score[(query.sample_number, doc_id)] = get_query_score(query, doc_id)
@@ -80,15 +76,14 @@ class BestScorer:
       scores = [(doc_id, self.get_query_score(query, doc_id)) for doc_id in xrange(1, self.C)]
       scores.sort(key=lambda (d, s): -s)
       top_documents = (d for (d, s) in scores[:self.prf_num_top])
+
       relevant_contents = list(chain.from_iterable(self.document_by_id[j].tokens for j in top_documents))
       word_scores = [(word, relevant_contents.count(word) * self.idf(self.word_id[word])) for word in set(relevant_contents)]
       word_scores.sort(key=lambda (w, c): -c)
-      influential_words = (w for (w,c) in word_scores[:self.prf_num_words])
-      expanded_query = ExpandedQuery(query.sample_number,
-        query.tokens + list(influential_words)
-      )
+      expanded = ExpandedQuery(query.sample_number, query.tokens + [w for (w, c) in word_scores[:self.prf_num_words]])
+
       for doc_id in xrange(1, self.C):
-        self.query_score[(query.sample_number, doc_id)] = get_query_score(expanded_query, doc_id) / len(expanded_query.tokens)
+        self.query_score[(query.sample_number, doc_id)] = get_query_score(expanded, doc_id) / len(expanded.tokens)
     return self
 
   def get_query_score(self, query, document_id):
