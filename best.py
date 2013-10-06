@@ -26,7 +26,7 @@ class BestScorer:
 
   def dump(self):
     with open(self.filename, 'w') as score_file:
-      scores = ((q.sample_number, d, self.query_score[(q.sample_number, d)]) for q in self.queries for d in xrange(1, self.C))
+      scores = ((q.sample_number, d, self.query_score[q.sample_number - 1][d - 1]) for q in self.queries for d in xrange(1, self.C))
       format_line = self.__format_line
       write_out = score_file.write
       for (query, document, score) in scores:
@@ -44,7 +44,7 @@ class BestScorer:
 
   def get_tf(self, word_id, document_id):
     '''Occurrences of word i in document j'''
-    return self.term_frequency.get((word_id, document_id), 0)
+    return self.term_frequency[word_id - 1][document_id - 1]
 
   def get_df(self, word_id):
     '''Number of documents that word i appears in'''
@@ -62,9 +62,9 @@ class BestScorer:
     return log(self.C / (1.0 + self.get_df(word_id)), 2)
 
   def compute_query_scores(self):
-    self.query_score, get_query_score = {}, self.get_query_score
+    self.query_score, get_query_score = [[0] * len(self.documents) for word in self.unique_words], self.get_query_score
     for query in self.queries:
-      scores = [(doc_id, self.get_query_score(query, doc_id)) for doc_id in xrange(1, self.C)]
+      scores = [(doc_id, get_query_score(query, doc_id)) for doc_id in xrange(1, self.C)]
       scores.sort(key=lambda (d, s): -s)
       top_documents = (d for (d, s) in scores[:self.prf_num_top])
 
@@ -74,7 +74,7 @@ class BestScorer:
       expanded = ExpandedQuery(query.sample_number, query.tokens + [w for (w, c) in word_scores[:self.prf_num_words]])
 
       for doc_id in xrange(1, self.C):
-        self.query_score[(query.sample_number, doc_id)] = get_query_score(expanded, doc_id) / len(expanded.tokens)
+        self.query_score[query.sample_number - 1][doc_id - 1] = get_query_score(expanded, doc_id) / len(expanded.tokens)
     return self
 
   def get_query_score(self, query, document_id):
@@ -92,7 +92,7 @@ class BestScorer:
 
   def compute_term_frequency(self):
     '''For each document, record the number of times that each word appears'''
-    self.term_frequency, self.document_frequency = {}, [0] * len(self.unique_words)
+    self.term_frequency, self.document_frequency = [[0] * len(self.documents) for word in self.unique_words], [0] * len(self.unique_words)
     tf, df = self.get_tf, self.get_df
     word2id = self.word_id
     for document in self.documents:
@@ -100,7 +100,7 @@ class BestScorer:
       for word in document.tokens:
         word_id = word2id[word]
         existing_tf = tf(word_id, doc_id)
-        self.term_frequency[(word_id, doc_id)] = existing_tf + 1
+        self.term_frequency[word_id - 1][doc_id - 1] = existing_tf + 1
         if existing_tf == 0: # Record the first occurrence of each word by incrementing df_i
           self.document_frequency[word_id - 1] = df(word_id) + 1
     return self
