@@ -2,7 +2,7 @@ from tokenize import *
 import os
 from math import log
 from itertools import chain
-from collections import Counter
+from counter_backport import Counter
 import sys
 
 class BestScorer:
