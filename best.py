@@ -11,7 +11,7 @@ class BestScorer:
     self.queries, self.documents  = list(queries), list(documents)
     self.unique_words = set(self.flatten_and_unique(chain(self.queries, self.documents)))
     self.word_id = dict((reversed(t) for t in enumerate(self.unique_words, 1)))
-    self.document_by_id = dict(((d.sample_number, d) for d in self.documents))
+    self.document_by_id = [0] + self.documents
     self.C = len(self.documents)
 
   def flatten_and_unique(self, list_of_lists):
@@ -38,10 +38,8 @@ class BestScorer:
 
   def compute_k_d_over_avg_d(self):
     '''Document length normalisation factor'''
-    self.kd_o_avd = {}
     average_doc_len = self.average_doc_len()
-    for document in self.documents:
-      self.kd_o_avd[document.sample_number] = (self.k * len(document.tokens)) / average_doc_len
+    self.kd_o_avd = [0] + [(self.k * len(d.tokens)) / average_doc_len for d in self.documents]
     return self
 
   def get_tf(self, word_id, document_id):
@@ -64,11 +62,8 @@ class BestScorer:
     return log(self.C / (1.0 + self.get_df(word_id)), 2)
 
   def compute_query_scores(self):
-    base_query_score, self.query_score, get_query_score = {}, {}, self.get_query_score
+    self.query_score, get_query_score = {}, self.get_query_score
     for query in self.queries:
-      for doc_id in xrange(1, self.C):
-        base_query_score[(query.sample_number, doc_id)] = get_query_score(query, doc_id)
-
       scores = [(doc_id, self.get_query_score(query, doc_id)) for doc_id in xrange(1, self.C)]
       scores.sort(key=lambda (d, s): -s)
       top_documents = (d for (d, s) in scores[:self.prf_num_top])
@@ -97,10 +92,8 @@ class BestScorer:
 
   def compute_term_frequency(self):
     '''For each document, record the number of times that each word appears'''
-    self.term_frequency = {}
-    self.document_frequency = {}
-    tf = self.get_tf
-    df = self.get_df
+    self.term_frequency, self.document_frequency = {}, {}
+    tf, df = self.get_tf, self.get_df
     word2id = self.word_id
     for document in self.documents:
       doc_id = document.sample_number
