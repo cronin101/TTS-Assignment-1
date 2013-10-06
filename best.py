@@ -2,6 +2,7 @@ from tokenize import *
 import os
 from math import log
 from itertools import chain
+from collections import Counter
 import sys
 
 class BestScorer:
@@ -62,11 +63,6 @@ class BestScorer:
     Rare words are considered more important for ranking'''
     return log(self.C / (1.0 + self.get_df(word_id)), 2)
 
-  def q_tf(self, word_id, query_words):
-    '''Query term frequency:
-    Words that appear more often in the query are ranked higher'''
-    return list(self.word_id[w] for w in query_words).count(word_id)
-
   def compute_query_scores(self):
     base_query_score, self.query_score, get_query_score = {}, {}, self.get_query_score
     for query in self.queries:
@@ -89,14 +85,15 @@ class BestScorer:
   def get_query_score(self, query, document_id):
     '''Sum over all query words i of qtf . tf . idf'''
     query_words = query.tokens
-    q_word_ids = set((self.word_id[w] for w in query_words))
+    q_word_ids = [self.word_id[w] for w in query_words]
+    id_counts = Counter(q_word_ids)
 
     def qtf_tf_idf(word_id):
       i = word_id
       j = document_id
-      return self.q_tf(i, query_words) * self.tf(i, j) * self.idf(i)
+      return id_counts[i] * self.tf(i, j) * self.idf(i)
 
-    return sum(qtf_tf_idf(i) for i in q_word_ids)
+    return sum(qtf_tf_idf(i) for i in set(q_word_ids))
 
   def compute_term_frequency(self):
     '''For each document, record the number of times that each word appears'''
