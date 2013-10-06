@@ -5,7 +5,18 @@ import nltk
 
 stopwords = nltk.corpus.stopwords.words('english')
 stemmer = LancasterStemmer()
+stems = {}
 nonword_regex, word_regex, whitespace_regex = re.compile('\W'), re.compile('\w'), re.compile('\s')
+
+def cachedStem(word):
+  cache = stems.get(word, None)
+  if cache is None:
+    stemmed = stemmer.stem(word)
+    stems[word] = stemmed
+    return stemmed
+  else:
+    return cache
+
 
 class ExpandedQuery:
   def __init__(self, sample_number, tokens):
@@ -56,7 +67,7 @@ class StringTokenizer:
       tokens = [tokens[0]] + [t for t in tokens[1:] if not t in stopwords]
 
     if stem:
-      tokens = [tokens[0]] + [stemmer.stem(w) for w in tokens[1:]]
+      tokens = [tokens[0]] + [cachedStem(w) for w in tokens[1:]]
 
     self.sample_number, self.tokens = int(tokens[0]), tokens[1:]
 

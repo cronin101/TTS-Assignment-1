@@ -48,7 +48,7 @@ class BestScorer:
 
   def get_df(self, word_id):
     '''Number of documents that word i appears in'''
-    return self.document_frequency.get(word_id, 0)
+    return self.document_frequency[word_id - 1]
 
   def tf(self, word_id, document_id):
     '''Normalised term frequency component:
@@ -92,7 +92,7 @@ class BestScorer:
 
   def compute_term_frequency(self):
     '''For each document, record the number of times that each word appears'''
-    self.term_frequency, self.document_frequency = {}, {}
+    self.term_frequency, self.document_frequency = {}, [0] * len(self.unique_words)
     tf, df = self.get_tf, self.get_df
     word2id = self.word_id
     for document in self.documents:
@@ -102,7 +102,7 @@ class BestScorer:
         existing_tf = tf(word_id, doc_id)
         self.term_frequency[(word_id, doc_id)] = existing_tf + 1
         if existing_tf == 0: # Record the first occurrence of each word by incrementing df_i
-          self.document_frequency[word_id] = df(word_id) + 1
+          self.document_frequency[word_id - 1] = df(word_id) + 1
     return self
 
 if __name__ == "__main__":
