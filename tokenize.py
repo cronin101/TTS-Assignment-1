@@ -3,6 +3,8 @@ import string
 from nltk.stem.lancaster import LancasterStemmer
 import nltk
 
+stopwords = nltk.corpus.stopwords.words('english')
+
 class ExpandedQuery:
   def __init__(self, sample_number, tokens):
     self.sample_number = sample_number
@@ -56,7 +58,6 @@ class StringTokenizer:
       tokens = [tokens[0]] + [digit_to_string[t] if digit_to_string.get(t, None) is not None else t for t in tokens[1:]]
 
     if remove_stopwords:
-      stopwords = nltk.corpus.stopwords('english')
       tokens = [tokens[0]] + [t for t in tokens[1:] if not t in stopwords]
 
     if stem:
@@ -78,5 +79,4 @@ class FileTokenizer:
     self.lines = re.compile('\n').split(contents)
 
   def all(self):
-    for line in self.lines:
-      yield StringTokenizer(line, self.stem, self.remove_stopwords, self.split_and_merge, self.token_correction, self.include_3grams)
+    return (StringTokenizer(line, self.stem, self.remove_stopwords, self.split_and_merge, self.token_correction, self.include_3grams) for line in self.lines)
