@@ -2,8 +2,8 @@ Overlap: Average precision (non-interpolated) for all rel docs(averaged over que
                   0.1527 
 
 Tfidf: Average precision (non-interpolated) for all rel docs(averaged over queries)
-                  0.1583 
+                  0.3245 
 
 Best: Average precision (non-interpolated) for all rel docs(averaged over queries)
-                  0.2271 
+                  0.5340 
 
