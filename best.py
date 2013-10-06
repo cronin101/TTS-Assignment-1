@@ -2,7 +2,6 @@ from tokenize import *
 import os
 from math import log
 from itertools import chain
-from counter_backport import Counter
 import sys
 
 class BestScorer:
@@ -66,10 +65,15 @@ class BestScorer:
       scores.sort(key=lambda (d, s): -s)
       top_documents = (d for (d, s) in scores[:self.prf_num_top])
 
-      relevant_contents = list(chain.from_iterable(self.document_by_id[j].tokens for j in top_documents))
-      word_scores = [(word, relevant_contents.count(word) * self.idf(self.word_id[word])) for word in set(relevant_contents)]
+      relevant_contents = reduce(lambda x, y: x + y, (self.document_by_id[j].counter for j in top_documents))
+      word_scores = [(key, relevant_contents[key] * self.idf(self.word_id[key])) for key in relevant_contents.keys()]
       word_scores.sort(key=lambda (w, c): -c)
-      expanded = ExpandedQuery(query.sample_number, query.tokens + [w for (w, c) in word_scores[:self.prf_num_words]])
+      new_tokens = word_scores[:self.prf_num_words]
+      expanded = ExpandedQuery(
+        query.sample_number,
+        query.tokens + [w for (w, c) in new_tokens],
+        query.counter + Counter(dict((w, 1) for (w, c) in new_tokens))
+      )
 
       for doc_id in xrange(1, self.C):
         self.query_score[query.sample_number - 1][doc_id - 1] = self.get_query_score(expanded, doc_id) / len(expanded.tokens)
@@ -77,19 +81,16 @@ class BestScorer:
 
   def get_query_score(self, query, document_id):
     '''Sum over all query words i of qtf . tf . idf'''
-    q_word_ids = [self.word_id[w] for w in query.tokens]
-    q_tf, tf, idf, j = Counter(q_word_ids), self.tf, self.idf, document_id
-    return sum(q_tf[i] * tf(i, j) * idf(i) for i in set(q_word_ids))
+    q_tf, tf, idf, j = query.counter, self.tf, self.idf, document_id
+    return sum(q_tf[w] * tf(i, j) * idf(i) for (i, w) in ((self.word_id[key], key) for key in query.counter.keys()))
 
   def compute_term_frequency(self):
     '''For each document, record the number of times that each word appears'''
     self.term_frequency, self.document_frequency = [[0] * len(self.documents) for word in self.unique_words], [0] * len(self.unique_words)
-    for (doc_id, tokens) in ((doc.sample_number, doc.tokens) for doc in self.documents):
-      for word_id in (self.word_id[word] for word in tokens):
-        existing_tf = self.get_tf(word_id, doc_id)
-        self.term_frequency[word_id - 1][doc_id - 1] = existing_tf + 1
-        if existing_tf == 0: # Record the first occurrence of each word by incrementing df_i
-          self.document_frequency[word_id - 1] = self.get_df(word_id) + 1
+    for (doc_id, counts) in ((doc.sample_number, doc.counter) for doc in self.documents):
+      for (word_id, word) in ((self.word_id[key], key) for key in counts.keys()):
+        self.term_frequency[word_id - 1][doc_id - 1] += counts[word]
+        self.document_frequency[word_id - 1] += 1
     return self
 
 if __name__ == "__main__":

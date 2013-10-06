@@ -1,6 +1,7 @@
 import re
 import string
 from nltk.stem.lancaster import LancasterStemmer
+from counter_backport import Counter
 import nltk
 
 stopwords = nltk.corpus.stopwords.words('english')
@@ -19,8 +20,8 @@ def cachedStem(word):
 
 
 class ExpandedQuery:
-  def __init__(self, sample_number, tokens):
-    self.sample_number, self.tokens = sample_number, tokens
+  def __init__(self, sample_number, tokens, counter):
+    self.sample_number, self.tokens, self.counter = sample_number, tokens, counter
 
 class StringTokenizer:
   '''Takes an input string in the format:
@@ -70,6 +71,7 @@ class StringTokenizer:
       tokens = [tokens[0]] + [cachedStem(w) for w in tokens[1:]]
 
     self.sample_number, self.tokens = int(tokens[0]), tokens[1:]
+    self.counter = Counter(self.tokens)
 
 class FileTokenizer:
   '''Takes an input filename where the file is a list of numbered lines
