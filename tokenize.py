@@ -32,7 +32,7 @@ class StringTokenizer:
       tokens: ['foo', 'bar', 'baz', 'the', 'cow', 'jumped']
   '''
   def __init__(self, input_string,
-    stem = False, remove_stopwords = False, split_and_merge = False, token_correction = False, include_3grams = False
+    stem = False, remove_stopwords = False, split_and_merge = False, token_correction = False, include_3grams = False, repeat_titles = False
   ):
     lowered_input = input_string.lower()
     tokens = [w for w in nonword_regex.split(lowered_input) if word_regex.match(w)]
@@ -47,6 +47,9 @@ class StringTokenizer:
         return nonword_regex.search(word[1:-1])
 
       tokens = tokens + [t for t in whitespace_regex.split(lowered_input) if should_merge(t)]
+
+    if repeat_titles:
+      tokens = tokens + [t for t in nonword_regex.split(input_string) if t.istitle()]
 
     if token_correction:
       digit_to_string = {
@@ -77,13 +80,13 @@ class FileTokenizer:
   '''Takes an input filename where the file is a list of numbered lines
   and runs it through the Tokenizer'''
   def __init__(self, input_filename,
-    stem = False, remove_stopwords = False, split_and_merge = False, token_correction = False, include_3grams = False
+    stem = False, remove_stopwords = False, split_and_merge = False, token_correction = False, include_3grams = False, repeat_titles = False
   ):
     self.split_and_merge, self.token_correction, self.include_3grams = split_and_merge, token_correction, include_3grams
-    self.stem, self.remove_stopwords = stem, remove_stopwords
+    self.stem, self.remove_stopwords, self.repeat_titles = stem, remove_stopwords, repeat_titles
     with open(input_filename, 'r') as input_file:
       contents = input_file.read().strip()
     self.lines = re.compile('\n').split(contents)
 
   def all(self):
-    return (StringTokenizer(line, self.stem, self.remove_stopwords, self.split_and_merge, self.token_correction, self.include_3grams) for line in self.lines)
+    return (StringTokenizer(line, self.stem, self.remove_stopwords, self.split_and_merge, self.token_correction, self.include_3grams, self.repeat_titles) for line in self.lines)
