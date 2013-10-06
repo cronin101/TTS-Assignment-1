@@ -2,22 +2,17 @@ from tokenize import *
 import os
 from math import log
 from itertools import chain
-import nltk
 import sys
-from nltk.stem.lancaster import LancasterStemmer
 
 class BestScorer:
   def __init__(self, filename, queries, documents, k=2.0, prf_num_top=4, prf_num_words=40):
     self.filename, self.k, self.prf_num_top, self.prf_num_words = filename, k, prf_num_top, prf_num_words
     self.queries, self.documents  = list(queries), list(documents)
     corpus = chain(self.queries, self.documents)
-    self.stemmer = LancasterStemmer()
-    stemmed_words = (self.stemmer.stem(w) for w in self.flatten_and_unique(corpus))
-    self.unique_words = set(stemmed_words)
+    self.unique_words = set(self.flatten_and_unique(corpus))
     self.word_id = dict((reversed(t) for t in enumerate(self.unique_words, 1)))
     self.document_by_id = dict(((d.sample_number, d) for d in self.documents))
     self.C = len(self.documents)
-    self.stopwords = nltk.corpus.stopwords.words('english')
 
   def flatten_and_unique(self, list_of_lists):
     return set(chain.from_iterable((l.tokens for l in list_of_lists)))
@@ -88,28 +83,24 @@ class BestScorer:
       scores.sort(key=lambda (d, s): -s)
       top_documents = (d for (d, s) in scores[:self.prf_num_top])
       relevant_contents = list(chain.from_iterable(self.document_by_id[j].tokens for j in top_documents))
-      filtered_contents = [w for w in relevant_contents if not w in self.stopwords]
-      word_scores = [(word, relevant_contents.count(word) * self.idf(self.word_id[self.stemmer.stem(word)])) for word in set(filtered_contents)]
+      word_scores = [(word, relevant_contents.count(word) * self.idf(self.word_id[word])) for word in set(relevant_contents)]
       word_scores.sort(key=lambda (w, c): -c)
       influential_words = (w for (w,c) in word_scores[:self.prf_num_words])
-      extended_query = StringTokenizer(
-        query.original_input + ' ' + string.join(list(influential_words)),
-        split_and_merge=True, token_correction=True, include_3grams=False
+      expanded_query = ExpandedQuery(query.sample_number,
+        query.tokens + list(influential_words)
       )
       for doc_id in range(1, self.C):
-        self.query_score[(query.sample_number, doc_id)] = get_query_score(extended_query, doc_id) / len(extended_query.tokens)
+        self.query_score[(query.sample_number, doc_id)] = get_query_score(expanded_query, doc_id) / len(expanded_query.tokens)
 
   def get_query_score(self, query, document_id):
     '''Sum over all query words i of qtf . tf . idf'''
     query_words = query.tokens
-    filtered_query = (w for w in query_words if not w in self.stopwords)
-    processed_query = list(self.stemmer.stem(w) for w in filtered_query)
-    q_word_ids = set((self.word_id[w] for w in processed_query))
+    q_word_ids = set((self.word_id[w] for w in query_words))
 
     def qtf_tf_idf(word_id):
       i = word_id
       j = document_id
-      return self.q_tf(i, processed_query) * self.tf(i, j) * self.idf(i)
+      return self.q_tf(i, query_words) * self.tf(i, j) * self.idf(i)
 
     return sum(qtf_tf_idf(i) for i in q_word_ids)
 
@@ -117,14 +108,13 @@ class BestScorer:
     '''For each document, record the number of times that each word appears'''
     self.term_frequency = {}
     self.document_frequency = {}
-    stem = self.stemmer.stem
     tf = self.get_tf
     df = self.get_df
     word2id = self.word_id
     for document in self.documents:
       doc_id = document.sample_number
       for word in document.tokens:
-        word_id = word2id[stem(word)]
+        word_id = word2id[word]
         existing_tf = tf(word_id, doc_id)
         self.term_frequency[(word_id, doc_id)] = existing_tf + 1
         if existing_tf == 0: # Record the first occurrence of each word by incrementing df_i
@@ -133,7 +123,7 @@ class BestScorer:
 if __name__ == "__main__":
   BestScorer(
     'best.top',
-    FileTokenizer('./qrys.txt', split_and_merge=True, token_correction=True, include_3grams=False).all(),
-    FileTokenizer('./docs.txt', split_and_merge=True, token_correction=True, include_3grams=False).all(),
+    FileTokenizer('./qrys.txt', stem=True, split_and_merge=True, token_correction=True, include_3grams=False).all(),
+    FileTokenizer('./docs.txt', stem=True, split_and_merge=True, token_correction=True, include_3grams=False).all(),
     k=float(sys.argv[1])
   ).crunch_numbers().dump()
