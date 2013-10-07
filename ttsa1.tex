@@ -13,7 +13,7 @@
  \usepackage[small,compact]{titlesec}
 \title{Text Technologies: Assessment 1 \\
 A Search Engine for Scientific Documents}
-\author{Aaron Cronin}
+\author{Aaron Cronin $\cdot$ s0925570 $\cdot$ The University of Edinburgh}
 \date	{}						% Activate to display a given date or no date
 
 \begin{document}
@@ -57,7 +57,7 @@ Tokens corresponding to the digits $[1, 10]$ were replaced with their plain-Engl
 
 \paragraph{Stopword Removal}
 \emph{Stopwords} are defined as parts of the English language that convey very little meaning, such as \verb|the, and, they|.
-The tokens were filtered by comparison with the \verb|nltk| English stopword list. Removing them avoids documents being rewarded for containing words that all text tends to contain. The $\mathbf{idf}$ portion of the ranking function attempts to reduce their impact but precision was found to improve after these tokens were removed. In addition, the reduced number of tokens improved performance.
+The tokens were filtered by comparison with the \verb|nltk| English stopword list. Removing them avoids a document being rewarded for containing words that all text tends to contain. The $\mathbf{idf}$ portion of the ranking function attempts to reduce their impact but precision was found to improve after these tokens were removed. In addition, the reduced number of tokens improved performance.
 
 \paragraph{Stemming}
 \emph{Stemming} is the process of reducing groups of words with the same morphological root to the same token. For example, \verb|swimming|, \verb|swim| and \verb|swimmer| all converge to \verb|swim|. This causes words that convey roughly the same meaning to produce tokens that will match each other. The ability to match originally distinct words greatly improved the search engine's precision. Multiple steamers were trialled: the 1979 \emph{Porter} stemmer, \verb|nltk|'s \emph{Snowball} stemmer, and the 1990 \emph{Lancaster} stemmer. In experiments, the \emph{Lancaster} stemmer was observed to improve precision the most.
