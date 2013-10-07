@@ -5,7 +5,7 @@ from itertools import chain
 import sys
 
 class BestScorer:
-  def __init__(self, filename, queries, documents, k=2.0, prf_num_top=4, prf_num_words=60):
+  def __init__(self, filename, queries, documents, k=2.0, prf_num_top=4, prf_num_words=65):
     self.filename, self.k, self.prf_num_top, self.prf_num_words = filename, k, prf_num_top, prf_num_words
     self.queries, self.documents  = list(queries), list(documents)
     self.unique_words = set(self.flatten_and_unique(chain(self.queries, self.documents)))
