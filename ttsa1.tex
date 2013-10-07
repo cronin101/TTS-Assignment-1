@@ -9,7 +9,7 @@
 \usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
 								% TeX will automatically convert eps --> pdf in pdflatex		
 \usepackage{amssymb}
- \linespread{0.93}
+ \linespread{0.92}
  \usepackage[small,compact]{titlesec}
 \title{Text Technologies: Assessment 1 \\
 A Search Engine for Scientific Documents}
@@ -32,7 +32,7 @@ s(Q,D) = \sum_{w}\mathbf{tf}_{w, Q} \cdot \frac
 \end{equation}
 \verb|Score s for query Q and document D.|
 
-Scoring by $tf \cdot idf$ has the following properties: Repeating a word in a query causes it to become more important to the ranking process, and matching that word multiple times in the document will cause the score to increase - although multiple repetitions have diminishing returns to combat the effects of \emph{clumping}. Finally, the reward for containing a word increases if the word occurs infrequently throughout the collection of documents.
+Scoring by $tf \cdot idf$ has the following properties: Repeating a word in a query causes it to become more important to the ranking process, and matching that word multiple times in the document will cause the score to increase \textendash{} although multiple repetitions have diminishing returns to combat the effects of \emph{clumping}. Finally, the reward for containing a word increases if the word occurs infrequently throughout the collection of documents.
 
 \subsection{Tokenisation}
 The input string was lowercased and split at punctuation. Punctuation was defined as being non-word characters, those matching the regular-expression \verb|\W|.
@@ -60,7 +60,7 @@ Tokens corresponding to the digits $[1, 10]$ were replaced with their plain-Engl
 The tokens were filtered by comparison with the \verb|nltk| English stopword list. Removing them avoids a document being rewarded for containing words that all text tends to contain. The $\mathbf{idf}$ portion of the ranking function attempts to reduce their impact but precision was found to improve after these tokens were removed. In addition, the reduced number of tokens improved performance.
 
 \paragraph{Stemming}
-\emph{Stemming} is the process of reducing groups of words with the same morphological root to the same token. For example, \verb|swimming|, \verb|swim| and \verb|swimmer| all converge to \verb|swim|. This causes words that convey roughly the same meaning to produce tokens that will match each other. The ability to match originally distinct words greatly improved the search engine's precision. Multiple steamers were trialled: the 1979 \emph{Porter} stemmer, \verb|nltk|'s \emph{Snowball} stemmer, and the 1990 \emph{Lancaster} stemmer. In experiments, the \emph{Lancaster} stemmer was observed to improve precision the most.
+\emph{Stemming} is the process of reducing groups of words with the same morphological root to the same token. For example, \verb|swimming|, \verb|swim| and \verb|swimmer| all converge to \verb|swim|. This causes words that convey roughly the same meaning to produce tokens that will match each other. The ability to match originally distinct words greatly improved the search engine's precision. Multiple stemmers were trialled: the 1979 \emph{Porter} stemmer, \verb|nltk|'s \emph{Snowball} stemmer, and the 1990 \emph{Lancaster} stemmer. In experiments, the \emph{Lancaster} stemmer was observed to improve precision the most.
 
 \subsection{Ranking}
 \paragraph{Pseudo Relevance Feedback}
@@ -78,7 +78,7 @@ new tokens with count 1 for each.
 Pseudo-relevance feedback had an extremely significant impact on the system, improving the precision greatly at the expense of only a slight reduction in performance - due to the increase in the number of query tokens processed. The constants governing the number of documents and tokens used for expansion were selected as those that performed best during testing.
 
 \paragraph{Adjusting the Dampening Factor, $k$}
-Originally, a value of $2.0$ for $k$ was provided. The application was modified to allow $k$ to be provided via a command-line argument and a script was produced to iterate over possible $k$, $[1.0, 5.0]$ to find the maximum precision, as reported by \emph{TREC}.
+Originally, a value of $2.0$ for $k$ was provided. The application was modified to allow $k$ to be provided via a command-line argument and a script was produced to iterate over possible $k$, $[1.0, 5.0]$ to find the maximum precision \textendash{} as reported by \emph{TREC}.
 The search response included the following results:
 \begin{verbatim}
 1.4 => 0.5620
@@ -95,6 +95,7 @@ As demonstrated in the above log-file section, the system achieved a precision $
 This is a significant level of performance and should be regarded as a success when considering the time taken to produce the retrieval system. Progress was assisted greatly by comprehensive unit-testing and profiling to ensure that iteration of design could be rapid and with low risk of introducing error.
 
 \section{Acknowledgements}
-Guidance into which augmentations to attempt was taken from the textbook \emph{Search Engines: Information Retrieval in Practice}, which presents a wide variety of options to improve retrieval alongside significant discussion of their merits. Critical discussion of the field of retrieval discussed in the above book occurred with current student \emph{Jacob Essex}, in addition to discussion of data-structures and other topics concerned with the efficient implementation of the exercise in \verb|Python|. The overall direction of the project was not influenced by any collaboration, but the time taken to arrive at a performant solution was decreased by sharing understandings and interpretation of openly available material.
+The solution includes a backport of \verb|Python 2.7|'s \verb|Counter| class, aiding performance \textendash{} obtained online.
+Guidance into which augmentations to attempt was taken from \emph{Search Engines: Information Retrieval in Practice}, which presents a variety of options to improve retrieval alongside evaluation of their merits. Critical discussion of the field of \emph{IR} portrayed in the textbook occurred with student \emph{Jacob Essex}, in addition to discussion of data-structures and topics concerned with the efficient implementation of the exercise in \verb|Python|. The overall direction of the project was not influenced by any collaboration, but the time taken to arrive at a performant solution was decreased by sharing understanding and interpretation of openly available material.
 
 \end{document}  
