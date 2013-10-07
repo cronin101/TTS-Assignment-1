@@ -98,5 +98,5 @@ if __name__ == "__main__":
     'best.top',
     FileTokenizer('./qrys.txt', remove_stopwords=True, stem=True, split_and_merge=True, token_correction=True, include_3grams=False, repeat_titles=True).all(),
     FileTokenizer('./docs.txt', remove_stopwords=True, stem=True, split_and_merge=True, token_correction=True, include_3grams=False, repeat_titles=True).all(),
-    k=float(sys.argv[1])
+    k=1.7
   ).crunch_numbers().dump()
