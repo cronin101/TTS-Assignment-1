@@ -1,3 +1,7 @@
+####Text Technologies Assignment 1: Search Engine for Scientfic Documents.
+
+- - -
+
 ```
 Overlap ranking:
 	Average precision (non-interpolated) for all rel docs(averaged over queries)
