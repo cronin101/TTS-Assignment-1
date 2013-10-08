@@ -7,7 +7,7 @@ class TestStringTokenizer(unittest.TestCase):
     the remaining tokens should be downcased'''
     just_words = StringTokenizer('1 The cow jumped over the moon')
     tokens = ['the', 'cow', 'jumped', 'over', 'the', 'moon']
-    self.assertEqual(just_words.sample_number, 1)
+    self.assertEqual(just_words.number, 1)
     self.assertEqual(just_words.tokens, tokens)
 
   def test_splitting_on_punctuation(self):
@@ -19,7 +19,7 @@ class TestStringTokenizer(unittest.TestCase):
       'swedish', 'house', 'mafia', 's', 'don', 't', 'you', 'worry', 'child',
       'i', 'can', 't', 'stop', 'over', 'playing', 'that', 'song'
     ]
-    self.assertEqual(with_punc.sample_number, 9)
+    self.assertEqual(with_punc.number, 9)
     self.assertEqual(with_punc.tokens, tokens)
 
   def test_split_and_merge(self):
@@ -32,7 +32,7 @@ class TestStringTokenizer(unittest.TestCase):
       'message', 'passing', 'is', 'great', 'don', 't', 'forget', 'to',
       'keep', 'data', 'local', 'though', 'message-passing', "don't"
     ]
-    self.assertEqual(split_and_merge.sample_number, 16)
+    self.assertEqual(split_and_merge.number, 16)
     self.assertEqual(split_and_merge.tokens, tokens)
 
 if __name__ == '__main__':
