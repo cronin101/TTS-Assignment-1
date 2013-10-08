@@ -25,7 +25,7 @@ class TFIDFScorer:
 
   def dump(self):
     with open(self.filename, 'w') as score_file:
-      for (query, document, score) in ((q.sample_number, d, self.query_score[q.sample_number - 1][d - 1]) for q in self.queries for d in xrange(1, self.C)):
+      for (query, document, score) in ((q.number, d, self.query_score[q.number - 1][d - 1]) for q in self.queries for d in xrange(1, self.C)):
         if score > 0: score_file.write(self.__format_line(query, document, score))
 
   def average_doc_len(self):
@@ -61,7 +61,7 @@ class TFIDFScorer:
     self.query_score = [[0] * len(self.documents) for word in self.unique_words]
     for query in self.queries:
       for doc_id in xrange(1, self.C):
-        self.query_score[query.sample_number - 1][doc_id - 1] = self.get_query_score(query, doc_id)
+        self.query_score[query.number - 1][doc_id - 1] = self.get_query_score(query, doc_id)
     return self
 
   def get_query_score(self, query, document_id):
@@ -72,7 +72,7 @@ class TFIDFScorer:
   def compute_term_frequency(self):
     '''For each document, record the number of times that each word appears'''
     self.term_frequency, self.document_frequency = [[0] * len(self.documents) for word in self.unique_words], [0] * len(self.unique_words)
-    for (doc_id, counts) in ((doc.sample_number, doc.counter) for doc in self.documents):
+    for (doc_id, counts) in ((doc.number, doc.counter) for doc in self.documents):
       for (word_id, word) in ((self.word_id[key], key) for key in counts.keys()):
         self.term_frequency[word_id - 1][doc_id - 1] += counts[word]
         self.document_frequency[word_id - 1] += 1

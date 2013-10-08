@@ -20,15 +20,15 @@ def cachedStem(word):
 
 
 class ExpandedQuery:
-  def __init__(self, sample_number, tokens, counter):
-    self.sample_number, self.tokens, self.counter = sample_number, tokens, counter
+  def __init__(self, number, tokens, counter):
+    self.number, self.tokens, self.counter = number, tokens, counter
 
 class StringTokenizer:
   '''Takes an input string in the format:
     '1 foo bar baz, the cow jumped.'
 
     and returns:
-      sample_number: 1
+      number: 1
       tokens: ['foo', 'bar', 'baz', 'the', 'cow', 'jumped']
   '''
   def __init__(self, input_string,
@@ -73,7 +73,7 @@ class StringTokenizer:
     if stem:
       tokens = [tokens[0]] + [cachedStem(w) for w in tokens[1:]]
 
-    self.sample_number, self.tokens = int(tokens[0]), tokens[1:]
+    self.number, self.tokens = int(tokens[0]), tokens[1:]
     self.counter = Counter(self.tokens)
 
 class FileTokenizer:

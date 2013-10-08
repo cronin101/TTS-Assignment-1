@@ -19,7 +19,7 @@ class OverlapScorer:
       for query in self.queries:
         for document in self.documents:
           score = self.query_score(query, document)
-          line = self.__format_line(query.sample_number, document.sample_number, score)
+          line = self.__format_line(query.number, document.number, score)
           overlaps.write(line)
 
 if __name__ == "__main__":
