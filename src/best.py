@@ -8,34 +8,28 @@ class BestScorer:
   def __init__(self, filename, queries, documents, k=2.0, prf_num_top=4, prf_num_words=65):
     self.filename, self.k, self.prf_num_top, self.prf_num_words = filename, k, prf_num_top, prf_num_words
     self.queries, self.documents  = list(queries), list(documents)
-    self.unique_words = set(self.flatten_and_unique(chain(self.queries, self.documents)))
+
+    def flatten_and_unique(list_of_lists):
+      return set(chain.from_iterable((l.tokens for l in list_of_lists)))
+    self.unique_words = set(flatten_and_unique(chain(self.queries, self.documents)))
+
     self.word_id = dict((reversed(t) for t in enumerate(self.unique_words, 1)))
     self.document_by_id = [0] + self.documents
     self.C = len(self.documents)
 
-  def flatten_and_unique(self, list_of_lists):
-    return set(chain.from_iterable((l.tokens for l in list_of_lists)))
-
-  def crunch_numbers(self):
-    return self.compute_term_frequency().compute_k_d_over_avg_d().compute_query_scores()
-
-  def __format_line(self, query_num, doc_num, score):
-    values = (str(x) for x in [query_num, doc_num, score])
-    return string.join(values, ' 0 ') + ' 0' + os.linesep
-
   def dump(self):
+    def format_line(query_num, doc_num, score):
+      values = (str(x) for x in [query_num, doc_num, score])
+      return string.join(values, ' 0 ') + ' 0' + os.linesep
+
     with open(self.filename, 'w') as score_file:
       scores = ((q.sample_number, d, self.query_score[q.sample_number - 1][d - 1]) for q in self.queries for d in xrange(1, self.C))
       for (query, document, score) in scores:
-        if score > 0: score_file.write(self.__format_line(query, document, score))
-
-  def average_doc_len(self):
-    '''Average length of documents in collection C'''
-    return sum(len(d.tokens) for d in self.documents) / float(len(self.documents))
+        if score > 0: score_file.write(format_line(query, document, score))
 
   def compute_k_d_over_avg_d(self):
     '''Document length normalisation factor'''
-    average_doc_len = self.average_doc_len()
+    average_doc_len = sum(len(d.tokens) for d in self.documents) / float(len(self.documents))
     self.kd_o_avd = [0] + [(self.k * len(d.tokens)) / average_doc_len for d in self.documents]
     return self
 
@@ -99,4 +93,4 @@ if __name__ == "__main__":
     FileTokenizer('../data/qrys.txt', remove_stopwords=True, stem=True, split_and_merge=True, token_correction=True, include_3grams=False, repeat_titles=True).all(),
     FileTokenizer('../data/docs.txt', remove_stopwords=True, stem=True, split_and_merge=True, token_correction=True, include_3grams=False, repeat_titles=True).all(),
     k=1.7
-  ).crunch_numbers().dump()
+  ).compute_term_frequency().compute_k_d_over_avg_d().compute_query_scores().dump()
