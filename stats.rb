@@ -1,3 +1,7 @@
-#!/usr/bin/env ruby
+#!/usr/bin/ruby
 
-%w{overlap tfidf best}.each { |technique| puts "#{technique.capitalize}: #{`./trec_eval.8.1/trec_eval -o -c -M1000 truth.rel #{technique}.top | grep 'Average precision' -A 1`}\n" }
+%w{overlap tfidf best}.each do |ranker|
+  puts ranker.capitalize << ' ranking:'
+  puts "\t" << `./trec_eval -o -c -M1000 ./data/truth.rel ./rankings/#{ranker}.top | grep 'Average precision' -A 1`
+end
+

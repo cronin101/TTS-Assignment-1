@@ -95,8 +95,8 @@ class BestScorer:
 
 if __name__ == "__main__":
   BestScorer(
-    'best.top',
-    FileTokenizer('./qrys.txt', remove_stopwords=True, stem=True, split_and_merge=True, token_correction=True, include_3grams=False, repeat_titles=True).all(),
-    FileTokenizer('./docs.txt', remove_stopwords=True, stem=True, split_and_merge=True, token_correction=True, include_3grams=False, repeat_titles=True).all(),
+    '../rankings/best.top',
+    FileTokenizer('../data/qrys.txt', remove_stopwords=True, stem=True, split_and_merge=True, token_correction=True, include_3grams=False, repeat_titles=True).all(),
+    FileTokenizer('../data/docs.txt', remove_stopwords=True, stem=True, split_and_merge=True, token_correction=True, include_3grams=False, repeat_titles=True).all(),
     k=1.7
   ).crunch_numbers().dump()

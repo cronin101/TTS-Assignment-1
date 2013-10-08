@@ -56,20 +56,17 @@ class TestTFIDFScorer(unittest.TestCase):
     queries = map(tokenize, query_lines)
     scorer = TFIDFScorer('./output', queries, [StringTokenizer('1 cats tho')], 2.0)
 
-    bees_query_words = queries[0].tokens
-    dogs_query_words = queries[1].tokens
+    bees_query = queries[0]
+    dogs_query = queries[1]
 
-    bees_id = scorer.word_id['bees']
-    self.assertEqual(scorer.q_tf(bees_id, bees_query_words), 3)
-    self.assertEqual(scorer.q_tf(bees_id, dogs_query_words), 0)
+    self.assertEqual(bees_query.counter['bees'], 3)
+    self.assertEqual(dogs_query.counter['bees'], 0)
 
-    dogs_id = scorer.word_id['dogs']
-    self.assertEqual(scorer.q_tf(dogs_id, bees_query_words), 0)
-    self.assertEqual(scorer.q_tf(dogs_id, dogs_query_words), 1)
+    self.assertEqual(bees_query.counter['dogs'], 0)
+    self.assertEqual(dogs_query.counter['dogs'], 1)
 
-    cats_id = scorer.word_id['cats']
-    self.assertEqual(scorer.q_tf(cats_id, bees_query_words), 0)
-    self.assertEqual(scorer.q_tf(cats_id, dogs_query_words), 0)
+    self.assertEqual(bees_query.counter['cats'], 0)
+    self.assertEqual(dogs_query.counter['cats'], 0)
 
   def test_term_frequency(self):
     '''Term_frequency(i, j) is the number of times word i appears in document j'''

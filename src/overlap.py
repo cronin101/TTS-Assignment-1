@@ -24,7 +24,7 @@ class OverlapScorer:
 
 if __name__ == "__main__":
   OverlapScorer(
-    './overlap.top',
-    FileTokenizer('./qrys.txt').all(),
-    FileTokenizer('./docs.txt').all()
+    '../rankings/overlap.top',
+    FileTokenizer('../data/qrys.txt').all(),
+    FileTokenizer('../data/docs.txt').all()
   ).dump()
